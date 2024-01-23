@@ -50,22 +50,33 @@ app.post('/', async (req, res) => {
     const ffmpegProcess = cp.spawn(
         ffmpegStatic,
         [
-            "-loglevel",
-            "8",
-            "-hide_banner",
-            "-i",
-            "pipe:3",
-            "-i",
-            "pipe:4",
-            "-map",
-            "0:a",
-            "-map",
-            "1:v",
-            "-c",
-            "copy",
-            "-f",
-            "matroska",
-            "pipe:5",
+            '-loglevel', '8',
+            '-hide_banner',
+            '-i', 'pipe:3',
+            '-i', 'pipe:4',
+            '-map', '0:a',
+            '-map', '1:v',
+            '-c:v', 'copy',  // Copy the video stream
+            '-c:a', 'copy',  // Copy the audio stream
+            '-preset', 'ultrafast',  // Use the ultrafast preset
+            '-f', 'matroska',
+            'pipe:5',
+            // "-loglevel",
+            // "8",
+            // "-hide_banner",
+            // "-i",
+            // "pipe:3",
+            // "-i",
+            // "pipe:4",
+            // "-map",
+            // "0:a",
+            // "-map",
+            // "1:v",
+            // "-c",
+            // "copy",
+            // "-f",
+            // "matroska",
+            // "pipe:5",
         ],
         {
             windowsHide: true,
@@ -79,9 +90,12 @@ app.post('/', async (req, res) => {
     let currentDuration = 0;
     ffmpegProcess.stdio[5].on("data", (data) => {
         currentDuration += data.length
-        if(data){
+        if (data) {
             io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
         }
+    })
+    ffmpegProcess.stdio[5].on("download start", () => {
+        io.emit("end")
     })
 
 })

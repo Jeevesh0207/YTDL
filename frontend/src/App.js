@@ -8,14 +8,14 @@ function App() {
   const [currentDuration, SetcurrentDuration] = useState(0);
   const [TotalDuration, SetTotalDuration] = useState(0);
 
-  // const socket = io("http://localhost:4000/");
-  const socket = io("https://ytdl-r9rl.onrender.com");
+  const socket = io("http://localhost:4000/");
+  // const socket = io("https://ytdl-r9rl.onrender.com");
 
   useEffect(() => {
     socket.on('data sent', (data) => {
       SetcurrentDuration(data.size);
       SetTotalDuration(data.duration);
-      console.log(data.size,data.duration)
+      // console.log(data.size,data.duration)
     });
 
     socket.on('download start', () => {
@@ -49,7 +49,7 @@ function App() {
     };
 
     try {
-      const response = await axios.post("https://ytdl-r9rl.onrender.com", data, {
+      const response = await axios.post("http://localhost:4000", data, {
         headers: {
           "Content-Type": "application/json",
         },
