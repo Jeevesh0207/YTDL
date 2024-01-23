@@ -47,6 +47,7 @@ app.post('/', async (req, res) => {
         },
     });
 
+    
     const ffmpegProcess = cp.spawn(
         ffmpegStatic,
         [
@@ -61,24 +62,8 @@ app.post('/', async (req, res) => {
             "0:a",
             "-map",
             "1:v",
-            "-c:v",
-            "libx264",
-            "-crf",
-            "23",
-            "-profile:v",
-            "baseline",
-            "-level",
-            "3.0",
-            "-pix_fmt",
-            "yuv420p",
-            "-c:a",
-            "aac",
-            "-ac",
-            "2",
-            "-b:a",
-            "128k",
-            "-movflags",
-            "faststart",
+            "-c",
+            "copy",
             "-f",
             "matroska",
             "pipe:5",
@@ -89,31 +74,6 @@ app.post('/', async (req, res) => {
         }
     );
 
-    // const ffmpegProcess = cp.spawn(
-    //     ffmpegStatic,
-    //     [
-    //         "-loglevel",
-    //         "8",
-    //         "-hide_banner",
-    //         "-i",
-    //         "pipe:3",
-    //         "-i",
-    //         "pipe:4",
-    //         "-map",
-    //         "0:a",
-    //         "-map",
-    //         "1:v",
-    //         "-c",
-    //         "copy",
-    //         "-f",
-    //         "matroska",
-    //         "pipe:5",
-    //     ],
-    //     {
-    //         windowsHide: true,
-    //         stdio: ["inherit", "inherit", "inherit", "pipe", "pipe", "pipe"],
-    //     }
-    // );
     Audio.pipe(ffmpegProcess.stdio[3]);
     Video.pipe(ffmpegProcess.stdio[4]);
     ffmpegProcess.stdio[5].pipe(res)
