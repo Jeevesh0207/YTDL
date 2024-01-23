@@ -34,10 +34,10 @@ app.post('/', async (req, res) => {
     let videoduration = 0;
     const Video = ytdl(URL, {
         filter: (format) => {
-            if (format.quality === "hd1080") {
+            if (format.quality === "hd2160") {
                 videoduration = Math.max(videoduration, format.contentLength / 1024 / 1024);
             }
-            return format.quality === "hd1080";
+            return format.quality === "hd2160";
         },
     });
 
@@ -50,60 +50,28 @@ app.post('/', async (req, res) => {
     const ffmpegProcess = cp.spawn(
         ffmpegStatic,
         [
-          "-loglevel",
-          "warning", 
-          "-hide_banner",
-          "-i",
-          "pipe:3",
-          "-i",
-          "pipe:4",
-          "-map",
-          "0:a",
-          "-map",
-          "1:v",
-          "-c:v",
-          "libx264", 
-          "-crf",
-          "23", 
-          "-c:a",
-          "aac", 
-          "-b:a",
-          "128k", 
-          "-f",
-          "mp4", 
-          "pipe:5", 
+            "-loglevel",
+            "8",
+            "-hide_banner",
+            "-i",
+            "pipe:3",
+            "-i",
+            "pipe:4",
+            "-map",
+            "0:a",
+            "-map",
+            "1:v",
+            "-c",
+            "copy",
+            "-f",
+            "matroska",
+            "pipe:5",
         ],
         {
-          windowsHide: true,
-          stdio: ["inherit", "inherit", "inherit", "pipe", "pipe", "pipe"],
+            windowsHide: true,
+            stdio: ["inherit", "inherit", "inherit", "pipe", "pipe", "pipe"],
         }
-      );
-    
-    // const ffmpegProcess = cp.spawn(
-    //     ffmpegStatic,
-    //     [
-    //         "-loglevel",
-    //         "8",
-    //         "-hide_banner",
-    //         "-i",
-    //         "pipe:3",
-    //         "-i",
-    //         "pipe:4",
-    //         "-map",
-    //         "0:a",
-    //         "-map",
-    //         "1:v",
-    //         "-c",
-    //         "copy",
-    //         "-f",
-    //         "matroska",
-    //         "pipe:5",
-    //     ],
-    //     {
-    //         windowsHide: true,
-    //         stdio: ["inherit", "inherit", "inherit", "pipe", "pipe", "pipe"],
-    //     }
-    // );
+    );
 
     Audio.pipe(ffmpegProcess.stdio[3]);
     Video.pipe(ffmpegProcess.stdio[4]);
