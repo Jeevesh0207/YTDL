@@ -34,10 +34,10 @@ app.post('/', async (req, res) => {
     let videoduration = 0;
     const Video = ytdl(URL, {
         filter: (format) => {
-            if (format.quality === "tiny") {
+            if (format.quality === "hd1080") {
                 videoduration = Math.max(videoduration, format.contentLength / 1024 / 1024);
             }
-            return format.quality === "tiny";
+            return format.quality === "hd1080";
         },
     });
 
