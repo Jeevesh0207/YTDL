@@ -11,46 +11,77 @@ const YTDL = require("./routes/YTDL");
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
 const app = express();
-const server = http.createServer(app)
-const { Server } = require('socket.io')
-const io = new Server(server, {
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
     cors: {
         origin: "*",
-        methods: ["GET", "POST"],
-        credentials: true
+        methods: ["GET", "POST"]
     }
-})
+});
 
 const CorsOption = {
     origin: '*',
-    methods: ["GET", "POST"],
     credentials: true
 };
 
-app.set('socketio', io)
 app.use(cors(CorsOption));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Add the CORS headers
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
-
-app.use('/', YTDL)
-
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('message', (ms) => {
-        io.emit('message', ms);
+app.post('/', async (req, res) => {
+    const { URL } = req.body;
+    let videoduration = 0;
+    const Video = ytdl(URL, {
+        filter: (format) => {
+            if (format.quality === "tiny") {
+                videoduration = Math.max(videoduration, format.contentLength / 1024 / 1024);
+            }
+            return format.quality === "tiny";
+        },
     });
-});
 
+    const Audio = ytdl(URL, {
+        filter: (format) => {
+            return format.audioQuality === "AUDIO_QUALITY_MEDIUM";
+        },
+    });
 
+    const ffmpegProcess = cp.spawn(
+        ffmpegStatic,
+        [
+            "-loglevel",
+            "8",
+            "-hide_banner",
+            "-i",
+            "pipe:3",
+            "-i",
+            "pipe:4",
+            "-map",
+            "0:a",
+            "-map",
+            "1:v",
+            "-c",
+            "copy",
+            "-f",
+            "matroska",
+            "pipe:5",
+        ],
+        {
+            windowsHide: true,
+            stdio: ["inherit", "inherit", "inherit", "pipe", "pipe", "pipe"],
+        }
+    );
+    Audio.pipe(ffmpegProcess.stdio[3]);
+    Video.pipe(ffmpegProcess.stdio[4]);
+    ffmpegProcess.stdio[5].pipe(res)
+    let currentDuration = 0;
+    ffmpegProcess.stdio[5].on("data", (data) => {
+        currentDuration += data.length
+        io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
+    })
+
+})
 
 server.listen(4000, () => {
     console.log("Server listening on port 4000");
