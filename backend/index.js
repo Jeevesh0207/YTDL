@@ -11,19 +11,13 @@ const YTDL = require("./routes/YTDL");
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
 const app = express();
-const server = http.createServer(app) || "https://ytdl-mu.vercel.app/";
+const server = http.createServer(app)
 const { Server } = require('socket.io')
-const io = new Server(server)
-// const io = require('socket.io')(server, {
-//     cors: {
-//       origin: "*",
-//       methods: ["GET", "POST"],
-//       transports: ['websocket', 'polling'],
-//       credentials: true
-//     },
-//     allowEIO3: true,
-//   });
-
+const io = new Server(server, {
+    cors: {
+        origin: "*"
+    }
+})
 
 const CorsOption = {
     origin: '*',
@@ -44,6 +38,10 @@ io.on('connection', (socket) => {
         io.emit('message', ms);
     });
 });
+
+server.prependListener("request", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+ });
 
 server.listen(4000, () => {
     console.log("Server listening on port 4000");

@@ -8,7 +8,7 @@ function App() {
   const [currentDuration, SetcurrentDuration] = useState(0);
   const [TotalDuration, SetTotalDuration] = useState(0);
   // Create socket connection outside of the component
-  const socket = io.connect("http://localhost:4000/");
+  const socket = io.connect("https://ytdl-mu.vercel.app/");
 
   useEffect(() => {
     // Listen for 'data sent' event
@@ -27,7 +27,7 @@ function App() {
       socket.off('data sent');
       socket.off('download start');
     };
-  }, []);
+  }, [socket]);
 
   const DownLoadVideo = (blob) => {
     if (blob) {
@@ -48,7 +48,7 @@ function App() {
     };
 
     try {
-      const response = await axios.post("https://ytdl-mu.vercel.app/", data, {
+      const response = await axios.post("http://localhost:4000/", data, {
         headers: {
           "Content-Type": "application/json",
         },
