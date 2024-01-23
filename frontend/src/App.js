@@ -9,7 +9,7 @@ function App() {
   const [TotalDuration, SetTotalDuration] = useState(0);
 
   // const socket = io("http://localhost:4000/");
-  // const socket = io.connect("https://ytdl-r9rl.onrender.com");
+  const socket = io.connect("https://ytdl-r9rl.onrender.com");
 
   useEffect(() => {
     socket.on('data sent', (data) => {

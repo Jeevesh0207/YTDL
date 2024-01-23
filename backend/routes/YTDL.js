@@ -75,7 +75,8 @@ YTDL.post('/', async (req, res) => {
     ffmpegProcess.stdio[5].on("data", (data) => {
         if (data) {
             currentDuration += data.length;
-            io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
+            console.log(Math.floor((currentDuration / (1024 * 1024))),Math.floor(videoduration))
+            // io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
         }
     });
 
