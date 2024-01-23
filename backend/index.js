@@ -14,8 +14,11 @@ const app = express();
 const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server, {
+    headers:{
+        "Access-Control-Allow-Origin": "*",
+    },
     cors: {
-        origin: "*"
+        origin: "*",  
     }
 })
 
@@ -39,9 +42,7 @@ io.on('connection', (socket) => {
     });
 });
 
-server.prependListener("request", (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
- });
+
 
 server.listen(4000, () => {
     console.log("Server listening on port 4000");
