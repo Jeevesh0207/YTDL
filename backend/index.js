@@ -11,13 +11,18 @@ const YTDL = require("./routes/YTDL");
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
 const app = express();
-const server = http.createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const server = http.createServer(app) || "https://ytdl-mu.vercel.app/";
+const { Server } = require('socket.io')
+const io = new Server(server)
+// const io = require('socket.io')(server, {
+//     cors: {
+//       origin: "*",
+//       methods: ["GET", "POST"],
+//       transports: ['websocket', 'polling'],
+//       credentials: true
+//     },
+//     allowEIO3: true,
+//   });
 
 
 const CorsOption = {
@@ -25,18 +30,22 @@ const CorsOption = {
     credentials: true
 };
 
-app.set('socketio',io)
+app.set('socketio', io)
 app.use(cors(CorsOption));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use('/',YTDL)
-server.listen(4000, () => {
-    io.on('connection', (socket) => {
-        // console.log('New client connected');
-        // socket.on('disconnect', () => console.log('Client disconnected'));
+app.use('/', YTDL)
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('message', (ms) => {
+        io.emit('message', ms);
     });
+});
+
+server.listen(4000, () => {
     console.log("Server listening on port 4000");
 });
 
