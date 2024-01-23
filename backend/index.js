@@ -14,12 +14,13 @@ const app = express();
 const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server, {
-    headers:{
-        "Access-Control-Allow-Origin": "*",
-    },
     cors: {
-        origin: "*",  
-    }
+        origin: "*",
+        methods: ["GET", "POST"],
+        transports: ['websocket', 'polling'],
+        credentials: true
+    },
+    allowEIO3: true
 })
 
 const CorsOption = {
