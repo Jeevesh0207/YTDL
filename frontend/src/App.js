@@ -7,22 +7,20 @@ function App() {
   const [isDownload, SetisDownload] = useState(false);
   const [currentDuration, SetcurrentDuration] = useState(0);
   const [TotalDuration, SetTotalDuration] = useState(0);
-  // Create socket connection outside of the component
-  const socket = io.connect("http://localhost:4000/");
+
+  const socket = io("http://localhost:4000/");
+  // const socket = io("https://ytdl-mu.vercel.app/");
 
   useEffect(() => {
-    // Listen for 'data sent' event
     socket.on('data sent', (data) => {
       SetcurrentDuration(data.size);
       SetTotalDuration(data.duration);
     });
 
-    // Listen for 'download start' event
     socket.on('download start', () => {
       console.log("DownLoad")
     });
 
-    // Cleanup listeners on unmount
     return () => {
       socket.off('data sent');
       socket.off('download start');
@@ -43,6 +41,7 @@ function App() {
 
   const YTDLDownload = async () => {
     SetisDownload(true);
+    socket.connect()
     const data = {
       URL: videoURL,
     };

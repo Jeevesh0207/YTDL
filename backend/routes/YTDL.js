@@ -8,7 +8,6 @@ const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
 YTDL.post('/', async (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
     const { URL } = req.body;
     const io = req.app.get('socketio');
     let videoduration = 0;
