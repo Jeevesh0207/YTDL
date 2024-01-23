@@ -79,7 +79,9 @@ app.post('/', async (req, res) => {
     let currentDuration = 0;
     ffmpegProcess.stdio[5].on("data", (data) => {
         currentDuration += data.length
-        io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
+        if(data){
+            io.emit('data sent', { size: Math.floor((currentDuration / (1024 * 1024))), duration: Math.floor(videoduration) });
+        }
     })
 
 })
